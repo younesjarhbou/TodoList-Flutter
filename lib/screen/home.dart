@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todolist/config.dart';
 import 'package:todolist/functionLibrary.dart';
 
 class Home extends StatefulWidget {
@@ -37,17 +38,17 @@ class _HomeState extends State<Home> {
               onPressed: () {
                 final String text = _textEditingController.text.trim();
                 if (text.isNotEmpty) {
-                  setState(() {
-                    final Map<String, dynamic> requestBody = {
-                      'text': text,
-                      'completed': false,
-                    };
-                    widget.itemList.add({
-                      'text': text,
-                      'created_at': DateTime.now().toString(),
-                      'completed': false,
+                  final Map<String, dynamic> requestBody = {
+                    'text': text,
+                    'completed': false,
+                  };
+                  functionLibrary.makePostRequest(requestBody).then((_) {
+                    print("jarhbou then post request successful " +
+                        config.insertedtodo.toString());
+                    setState(()
+                    {
+                      widget.itemList.add(config.insertedtodo);
                     });
-                    functionLibrary.makePostRequest(requestBody);
                   });
                   Navigator.of(context).pop();
                 }
@@ -61,6 +62,11 @@ class _HomeState extends State<Home> {
 
   List<Map<String, dynamic>> getCompletedTasks() {
     return widget.itemList.where((item) => item['completed']).toList();
+  }
+
+  //delete item from widget.itemList where id = given id
+  void deleteItem(String id) {
+    widget.itemList.removeWhere((item) => item['_id'] == id);
   }
 
   List<Map<String, dynamic>> getCurrentTasks() {
@@ -78,18 +84,31 @@ class _HomeState extends State<Home> {
               itemCount: getCurrentTasks().length,
               itemBuilder: (context, index) {
                 final item = getCurrentTasks()[index];
-                return ListTile(
-                  title: Text(item['text']),
-                  subtitle: Text(item['created_at']),
-                  trailing: Checkbox(
-                    value: item['completed'],
-                    onChanged: (value) {
-                      setState(() {
-                        functionLibrary.sendPutRequest(item['_id']);
-                        item['completed'] = value;
-                        
-                      });
+                return Padding(
+                  padding: EdgeInsets.all(5),
+                  child: GestureDetector(
+                    onLongPress: () {
+                      showDeleteDialog(item['_id']);
                     },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ListTile(
+                        title: Text(item['text']),
+                        subtitle: Text(item['created_at']),
+                        trailing: Checkbox(
+                          value: item['completed'],
+                          onChanged: (value) {
+                            setState(() {
+                              functionLibrary.sendPutRequest(item['_id']);
+                              item['completed'] = value;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
                   ),
                 );
               },
@@ -98,10 +117,24 @@ class _HomeState extends State<Home> {
               itemCount: getCompletedTasks().length,
               itemBuilder: (context, index) {
                 final item = getCompletedTasks()[index];
-                return ListTile(
-                  title: Text(item['text']),
-                  subtitle: Text(item['created_at']),
-                  trailing: Icon(Icons.done),
+                return Padding(
+                  padding: EdgeInsets.all(5),
+                  child: GestureDetector(
+                    onLongPress: () {
+                      showDeleteDialog(item['_id']);
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ListTile(
+                        title: Text(item['text']),
+                        subtitle: Text(item['created_at']),
+                        trailing: Icon(Icons.done),
+                      ),
+                    ),
+                  ),
                 );
               },
             ),
@@ -125,6 +158,36 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
+    );
+  }
+
+  void showDeleteDialog(String id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete Item'),
+          content: Text('Are you sure you want to delete this item?'),
+          actions: [
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Delete'),
+              onPressed: () {
+                functionLibrary.deleteTodoById(id);
+                setState(() {
+                  deleteItem(id);
+                });
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

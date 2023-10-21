@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todolist/config.dart';
+import 'package:todolist/functionLibrary.dart';
 import 'package:todolist/main.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -12,34 +13,14 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  List<Map<String, dynamic>> todoList = [];
 
   @override
   void initState() {
     super.initState();
-    fetchData();
+    functionLibrary.fetchData(context, true);
   }
 
-  Future<void> fetchData() async {
-    try {
-      final response =
-          await http.get(Uri.parse(config.api_url+'todos'));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          todoList = List<Map<String, dynamic>>.from(data);
-        });
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => Home(todoList)),
-        );
-      } else {
-        print('Request failed with status: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error: $error');
-    }
-  }
+ 
 
   @override
   Widget build(BuildContext context) {

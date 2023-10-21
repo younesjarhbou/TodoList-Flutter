@@ -1,7 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:todolist/config.dart';
+import 'package:todolist/screen/home.dart';
 
 class functionLibrary {
   static Future<void> makePostRequest(Map<String, dynamic> body) async {
@@ -13,9 +15,10 @@ class functionLibrary {
       body: jsonEncode(body),
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201) {
       print('jarhbou Post request successful!');
-      print(response.body);
+      print("jarhbou response.body " + response.body);
+      config.insertedtodo = json.decode(response.body);
     } else {
       print('Error: ${response.statusCode}');
     }
@@ -47,6 +50,47 @@ class functionLibrary {
     } catch (e) {
       // An error occurred while sending the PUT request
       print('Error: $e');
+    }
+  }
+
+  static Future<void> deleteTodoById(String id) async {
+    try {
+      final url = Uri.parse(config.api_url + 'todos/$id');
+      final response = await http.delete(url);
+
+      if (response.statusCode == 200) {
+        final deletedTodo = json.decode(response.body);
+        print(deletedTodo);
+      } else if (response.statusCode == 404) {
+        print({'error': 'Todo not found'});
+      } else {
+        print({'error': 'Failed to delete todo.'});
+      }
+    } catch (ex) {
+      print(ex);
+    }
+  }
+
+  static Future<void> fetchData(BuildContext context, bool goNext) async {
+    try {
+      List<Map<String, dynamic>> todoList = [];
+      final response = await http.get(Uri.parse(config.api_url + 'todos'));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        todoList = List<Map<String, dynamic>>.from(data);
+
+        if (goNext) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => Home(todoList)),
+          );
+        }
+      } else {
+        print('Request failed with status: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error: $error');
     }
   }
 }
