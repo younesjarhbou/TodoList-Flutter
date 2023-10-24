@@ -23,6 +23,7 @@ class _HomeState extends State<Home> {
         return AlertDialog(
           title: Text('Add Todo'),
           content: TextField(
+            key: Key("Add Todo"),
             controller: _textEditingController,
             decoration: InputDecoration(hintText: 'Enter todo item'),
           ),
@@ -45,9 +46,9 @@ class _HomeState extends State<Home> {
                   functionLibrary.makePostRequest(requestBody).then((_) {
                     print("jarhbou then post request successful " +
                         config.insertedtodo.toString());
-                    setState(()
-                    {
+                    setState(() {
                       widget.itemList.add(config.insertedtodo);
+                      _textEditingController.clear();
                     });
                   });
                   Navigator.of(context).pop();
@@ -79,26 +80,34 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Text('Todo List'),
       ),
-      body: _currentIndex == 0
-          ? ListView.builder(
-              itemCount: getCurrentTasks().length,
-              itemBuilder: (context, index) {
-                final item = getCurrentTasks()[index];
-                return Padding(
-                  padding: EdgeInsets.all(5),
-                  child: GestureDetector(
-                    onLongPress: () {
-                      showDeleteDialog(item['_id']);
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: ListTile(
-                        title: Text(item['text']),
-                        subtitle: Text(item['created_at']),
-                        trailing: Checkbox(
+      body: ListView.builder(
+        itemCount: (_currentIndex == 0)
+            ? getCurrentTasks().length
+            : getCompletedTasks().length,
+        itemBuilder: (context, index) {
+          final item = (_currentIndex == 0)
+              ? getCurrentTasks()[index]
+              : getCompletedTasks()[index];
+          return Padding(
+            padding: EdgeInsets.all(5),
+            child: GestureDetector(
+              key: Key("todo_container"),
+              onLongPress: () {
+                showDeleteDialog(item['_id']);
+              },
+              child: Container(
+                key: Key("todo_container"),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: ListTile(
+                  key: Key("todo_ListTile"),
+                  title: Text(item['text']),
+                  subtitle: Text(item['created_at']),
+                  trailing: (_currentIndex == 0)
+                      ? Checkbox(
+                          key: Key("checkbox_todo"),
                           value: item['completed'],
                           onChanged: (value) {
                             setState(() {
@@ -106,53 +115,35 @@ class _HomeState extends State<Home> {
                               item['completed'] = value;
                             });
                           },
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            )
-          : ListView.builder(
-              itemCount: getCompletedTasks().length,
-              itemBuilder: (context, index) {
-                final item = getCompletedTasks()[index];
-                return Padding(
-                  padding: EdgeInsets.all(5),
-                  child: GestureDetector(
-                    onLongPress: () {
-                      showDeleteDialog(item['_id']);
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: ListTile(
-                        title: Text(item['text']),
-                        subtitle: Text(item['created_at']),
-                        trailing: Icon(Icons.done),
-                      ),
-                    ),
-                  ),
-                );
-              },
+                        )
+                      : Icon(Icons.done),
+                ),
+              ),
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showAddDialog(context);
+          );
         },
-        child: Icon(Icons.add),
+      ),
+      floatingActionButton: Tooltip(
+        message: 'Add Item', // The text to display in the tooltip
+        child: FloatingActionButton(
+          onPressed: () {
+            _showAddDialog(context);
+          },
+          child: Icon(Icons.add),
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        key: Key("bottom_navigation_bar"),
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
         items: [
           BottomNavigationBarItem(
+            tooltip: 'Current Tasks',
             icon: Icon(Icons.check_box_outline_blank),
             label: 'Current Tasks',
           ),
           BottomNavigationBarItem(
+            tooltip: 'Completed Tasks',
             icon: Icon(Icons.done_all),
             label: 'Completed Tasks',
           ),
@@ -176,6 +167,7 @@ class _HomeState extends State<Home> {
               },
             ),
             TextButton(
+              key: Key("delete_task"),
               child: Text('Delete'),
               onPressed: () {
                 functionLibrary.deleteTodoById(id);
