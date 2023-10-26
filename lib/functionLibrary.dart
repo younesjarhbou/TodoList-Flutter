@@ -11,7 +11,11 @@ class functionLibrary {
 
     final response = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization':
+            'Bearer ${config.token}', // Add the Authorization header with the JWT token
+      },
       body: jsonEncode(body),
     );
 
@@ -35,7 +39,11 @@ class functionLibrary {
       // Send the PUT request
       final response = await http.put(
         url,
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization':
+              'Bearer ${config.token}', // Add the Authorization header with the JWT token
+        },
         body: body,
       );
 
@@ -56,7 +64,13 @@ class functionLibrary {
   static Future<void> deleteTodoById(String id) async {
     try {
       final url = Uri.parse(config.api_url + 'todos/$id');
-      final response = await http.delete(url);
+      final response = await http.delete(
+        url,
+        headers: {
+          'Authorization':
+              'Bearer ${config.token}', // Add the Authorization header with the JWT token
+        },
+      );
 
       if (response.statusCode == 200) {
         final deletedTodo = json.decode(response.body);
@@ -74,12 +88,18 @@ class functionLibrary {
   static Future<void> fetchData(BuildContext context, bool goNext) async {
     try {
       List<Map<String, dynamic>> todoList = [];
-      final response = await http.get(Uri.parse(config.api_url + 'todos'));
+      final response = await http.get(
+        Uri.parse(config.api_url + 'todos'),
+        headers: {
+          'Authorization': 'Bearer ${config.token}', // Add the Authorization header with the JWT token
+        },
+      );
+      
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-
+  
         todoList = List<Map<String, dynamic>>.from(data);
-
+  
         if (goNext) {
           Navigator.pushReplacement(
             context,
@@ -93,4 +113,5 @@ class functionLibrary {
       print('Error: $error');
     }
   }
+  
 }
