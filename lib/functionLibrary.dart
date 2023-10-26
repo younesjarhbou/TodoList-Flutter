@@ -74,7 +74,7 @@ class functionLibrary {
 
       if (response.statusCode == 200) {
         final deletedTodo = json.decode(response.body);
-        print(deletedTodo);
+        //print(deletedTodo);
       } else if (response.statusCode == 404) {
         print({'error': 'Todo not found'});
       } else {
@@ -119,7 +119,8 @@ class functionLibrary {
     }
   }
 
-  static void showSnackBarWithCloseButton(BuildContext context, String text, int duration) {
+  static void showSnackBarWithCloseButton(
+      BuildContext context, String text, int duration) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     final snackBar = SnackBar(
       content: Text(text),
