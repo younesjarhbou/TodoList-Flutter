@@ -20,8 +20,8 @@ class functionLibrary {
     );
 
     if (response.statusCode == 201) {
-      print('jarhbou Post request successful!');
-      print("jarhbou response.body " + response.body);
+      //print('jarhbou Post request successful!');
+      //print("jarhbou response.body " + response.body);
       config.insertedtodo = json.decode(response.body);
     } else {
       print('Error: ${response.statusCode}');
@@ -49,11 +49,11 @@ class functionLibrary {
 
       if (response.statusCode == 200) {
         // Put request was successful
-        print('jarhbou PUT request successful');
+        //print('jarhbou PUT request successful');
       } else {
         // Put request failed
-        print(
-            'jarhbou PUT request failed with status code ${response.statusCode}');
+        //print(
+        //  'jarhbou PUT request failed with status code ${response.statusCode}');
       }
     } catch (e) {
       // An error occurred while sending the PUT request
@@ -91,15 +91,16 @@ class functionLibrary {
       final response = await http.get(
         Uri.parse(config.api_url + 'todos'),
         headers: {
-          'Authorization': 'Bearer ${config.token}', // Add the Authorization header with the JWT token
+          'Authorization':
+              'Bearer ${config.token}', // Add the Authorization header with the JWT token
         },
-      );
-      
+      ).timeout(Duration(seconds: 10));
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-  
+
         todoList = List<Map<String, dynamic>>.from(data);
-  
+
         if (goNext) {
           Navigator.pushReplacement(
             context,
@@ -108,10 +109,29 @@ class functionLibrary {
         }
       } else {
         print('Request failed with status: ${response.statusCode}');
+
+        showSnackBarWithCloseButton(context, "Error while fetching data", 999);
       }
     } catch (error) {
       print('Error: $error');
+      // hide dialog
+      showSnackBarWithCloseButton(context, "Error while fetching data", 999);
     }
   }
-  
+
+  static void showSnackBarWithCloseButton(BuildContext context, String text, int duration) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    final snackBar = SnackBar(
+      content: Text(text),
+      behavior: SnackBarBehavior.floating,
+      duration: Duration(seconds: duration),
+      action: SnackBarAction(
+        label: "Close",
+        onPressed: () {
+          // Some code to undo the change.
+        },
+      ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
 }

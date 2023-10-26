@@ -44,14 +44,19 @@ class _HomeState extends State<Home> {
                     'completed': false,
                   };
                   functionLibrary.makePostRequest(requestBody).then((_) {
-                    print("jarhbou then post request successful " +
-                        config.insertedtodo.toString());
+                    // print("jarhbou then post request successful " +
+                    //   config.insertedtodo.toString());
                     setState(() {
                       widget.itemList.add(config.insertedtodo);
                       _textEditingController.clear();
                     });
                   });
                   Navigator.of(context).pop();
+                } else {
+                  Navigator.pop(context);
+
+                  functionLibrary.showSnackBarWithCloseButton(
+                      context, "Please enter a task", 5);
                 }
               },
             ),
