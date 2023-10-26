@@ -133,11 +133,17 @@ class _HomeState extends State<Home> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        key: Key("bottom_navigation_bar"),
+        backgroundColor: Colors.grey[
+            400], // Set the overall background color of the BottomNavigationBar
+        selectedItemColor:
+            Colors.blue, // Set the background color of the selected item
+        unselectedItemColor:
+            Colors.black, // Set the background color of the unselected items
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
         items: [
           BottomNavigationBarItem(
+            backgroundColor: Colors.grey[900],
             tooltip: 'Current Tasks',
             icon: Icon(Icons.check_box_outline_blank),
             label: 'Current Tasks',
