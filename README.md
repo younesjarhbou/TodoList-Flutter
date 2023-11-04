@@ -81,14 +81,3 @@ If you have any further questions or need additional assistance, please feel fre
 
 
 
-
-## Usage/Examples
-
-```javascript
-import Component from 'my-project'
-
-function App() {
-  return <Component />
-}
-```
-
